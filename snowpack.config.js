@@ -5,9 +5,7 @@ module.exports = {
     public: "/", // take whatever is in public and builds it into root
     src: '/dist',// take whatever is in /src and builds it into /dist 
   },
-  plugins: [
-    /* ... */
-  ],
+  plugins: ['@snowpack/plugin-react-refresh'],
   routes: [
     /* Enable an SPA Fallback in development: */
     // {"match": "routes", "src": ".*", "dest": "/index.html"},

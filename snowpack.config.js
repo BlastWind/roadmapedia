@@ -1,7 +1,9 @@
 /** @type {import("snowpack").SnowpackUserConfig } */
 module.exports = {
   mount: {
-    /* ... */
+    // directory name: 'build directory'
+    public: "/", // take whatever is in public and builds it into root
+    src: '/dist',// take whatever is in /src and builds it into /dist 
   },
   plugins: [
     /* ... */

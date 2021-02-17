@@ -1,5 +1,4 @@
-import { select, selection } from 'd3-selection';
-import "d3-selection-multi"
+import * as d3 from "../../../../d3/index.js"
 
 import { nodeMouseDown, circleNodeClick } from "./mouseFunctions.js";
 import {
@@ -9,7 +8,7 @@ import {
   windowMouseUp
 } from "./windowMouseFunctions.js";
 export function getInitialSVG() {
-  return select(".GraphEditorContainer")
+  return d3.select(".GraphEditorContainer")
     .append("svg")
     .attr("class", "container")
     .style("width", window.innerWidth + "px")

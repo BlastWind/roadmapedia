@@ -1,4 +1,4 @@
-import * as d3 from "d3";
+import * as d3 from "../../../../d3/index.js"
 import React, { Component } from "react";
 import  "../subComponentStyles/ColorCard.scss";
 import colorPalette from "../resources/color-palette.svg";

@@ -1,6 +1,5 @@
 import React, { Component } from "react";
-import "d3-selection-multi"
-import "d3-transition"
+import * as d3 from "../../../d3/index.js"
 import {
     textArrToHTML,
     getTranslateString,

@@ -1,6 +1,4 @@
-import * as d3 from "d3"
-import "d3-selection-multi"
-import "d3-transition"
+import * as d3 from "../../../../d3/index.js"
 import alphabetT from "../resources/t-alphabet.svg";
 import alphabetTPurple from "../resources/t-alphabet-purple.svg";
 import purpleLink from "../resources/purpleLink.svg";

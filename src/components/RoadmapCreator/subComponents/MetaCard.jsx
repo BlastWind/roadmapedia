@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { SketchPicker, ChromePicker } from "react-color";
-import * as d3 from "d3";
+import * as d3 from "../../../../d3/index.js"
 import  "../subComponentStyles/MetaCard.scss";
 import { paletteSvg, infoSvg, uploadSvg } from "../resources/SVGExports.js";
 import wheel from "../resources/wheel.svg";

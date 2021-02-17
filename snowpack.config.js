@@ -4,6 +4,7 @@ module.exports = {
     // directory name: 'build directory'
     public: "/", // take whatever is in public and builds it into root
     src: '/dist',// take whatever is in /src and builds it into /dist 
+    d3: "/d3"
   },
   plugins: ["@snowpack/plugin-babel", '@snowpack/plugin-sass',],
   routes: [

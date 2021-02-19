@@ -2,7 +2,12 @@
  * therefore, I configure selections to have attrs myself. 
  */
 
-
+/** FUTURE IMPROVEMENTS
+ *  Submodularize D3 packages, issue: 
+ *      "event" module should be exported from "d3-selection" <=@1.4.2
+ *      This works on playground sandbox: https://codesandbox.io/s/tender-benz-p5dtn?file=/src/index.js
+ *      Does not work here yet.  
+ */
 
 import { select, selection, selectAll} from "d3-selection"
 

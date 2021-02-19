@@ -6,6 +6,7 @@
   },
   "devDependencies": {
     "@snowpack/plugin-react-refresh": "^2.4.0",
+    "@snowpack/plugin-webpack": "^2.3.0",
     "snowpack": "^3.0.1"
   },
   "dependencies": {

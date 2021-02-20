@@ -47,7 +47,7 @@ import {
     getSVGString
 } from "./helperFunctions";
 import "./subComponentStyles/RoadmapCreator.css"
-import "./subComponentStyles/RoadmapCreatorToolbar.scss"
+import "./subComponentStyles/RoadmapCreatorToolBar.scss"
 import {
     notFocused,
     focused,

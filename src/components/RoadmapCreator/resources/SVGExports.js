@@ -1,5 +1,5 @@
 import React from "react";
-import  "../subComponentStyles/RoadmapCreatorToolbar.scss"
+import  "../subComponentStyles/RoadmapCreatorToolBar.scss"
 export function eyeSvg(preview) {
   return (
     <svg

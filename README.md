@@ -40,7 +40,7 @@ Why not combine them both? With a more beatiful and consistent UI, and let users
 
 ## Older Versions
 
-(The full stack sites won't function since I need to migrate database and resolve a persistent proxy error) 
+(The RESTful APIs won't work in these websites since I need to migrate database and resolve a persistent proxy error, but some UI is still accessible ) 
 
 [`Roadmapedia V1 (MERN Stack)`](https://arcane-scrubland-73229.herokuapp.com/)
 
@@ -53,8 +53,7 @@ Below are demos of their editors
 [`Roadmapedia V2 Editor`](https://roadmapedia-v2-editor.herokuapp.com/)
 
 
-
-Although far from professional levels, these were full stack application, and you can good a feel for the features I was going for.  
+Although far from professional levels, you can get a good feel for the features I was going for.  
 
 ## Connect
 

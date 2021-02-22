@@ -40,11 +40,13 @@ Why not combine them both? With a more beatiful and consistent UI, and let users
 
 ## Older Versions
 
+(Nothing loads currently, as I need to migrate databases and there are bugs with React Proxy) 
+
 [`Roadmapedia V1 (MERN Stack)`](https://arcane-scrubland-73229.herokuapp.com/)
 
 [`Roadmapedia V2 (MERN Stack)`](https://quiet-brushlands-45755.herokuapp.com/)
 
-(TODO: Above two webapps need to migrate from Mlab to MongoDB Atlas. APIs won't work right now) 
+
 
 Although far from professional levels, these were full stack application, and you can good a feel for the features I was going for.  
 

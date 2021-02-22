@@ -40,11 +40,17 @@ Why not combine them both? With a more beatiful and consistent UI, and let users
 
 ## Older Versions
 
-(Nothing loads currently, as I need to migrate databases and there are bugs with React Proxy) 
+(The full stack sites won't function since I need to migrate database and resolve a persistent proxy error) 
 
 [`Roadmapedia V1 (MERN Stack)`](https://arcane-scrubland-73229.herokuapp.com/)
 
 [`Roadmapedia V2 (MERN Stack)`](https://quiet-brushlands-45755.herokuapp.com/)
+
+Below are demos of their editors 
+
+[`Roadmapedia V1 Editor`](https://roadmapedia-v1-editor.herokuapp.com/)
+
+[`Roadmapedia V2 Editor`](https://roadmapedia-v2-editor.herokuapp.com/)
 
 
 

@@ -33,9 +33,48 @@ const LinksReducer = (state, action) => {
       return state;
   }
 };
+
+const Toolbar = ({ setMode, mode }) => {
+  /*
+    const viewDataContext = useContext(ViewDataContext);
+    const { nodes, links, nodesDispatch, linksDispatch } = viewDataContext;
+  */
+
+  const modes = ["addNode", "addLink"];
+  //<div onClick={() => nodesDispatch("addNode")}>add a god damn node</div>
+
+  return (
+    <>
+      <div
+        style={{
+          display: "flex",
+          background: "black",
+          color: "white",
+          userSelect: "none",
+        }}
+      >
+        {modes.map((eachMode) => (
+          <div
+            onClick={() => {
+              setMode(eachMode);
+            }}
+            style={{
+              padding: "10px 20px 10px 20px",
+              background: eachMode === mode ? "blue" : "none",
+              cursor: "pointer",
+            }}
+          >
+            {eachMode}
+          </div>
+        ))}
+      </div>
+    </>
+  );
+};
 const RoadmapCreatorView = () => {
-  const viewDataContext = useContext(ViewDataContext);
-  const { nodes, links, nodesDispatch, linksDispatch } = viewDataContext;
+  const [nodes, setNodes] = useState(initialNodes);
+  const [links, setLinks] = useState(initialLinks);
+  const [mode, setMode] = useState();
   const viewContainer = useRef(null);
   const width = 2048;
   const height = 1024;
@@ -45,17 +84,25 @@ const RoadmapCreatorView = () => {
       .style("height", height / 2 + "px")
       .style("background", "#ffcc3b26")
       .on("click", () => {
-        nodesDispatch("addNode");
+        //nodesDispatch("addNode");
       });
   }, []);
 
+  useEffect(() => {
+    console.log("mode updated to " + mode);
+  }, [mode]);
   useEffect(() => {
     d3.select(viewContainer.current).call((viewContainer) =>
       updateView(viewContainer, { nodes, links })
     );
     console.log("Nodes updated in creator view");
   }, [nodes, links]);
-  return <div ref={viewContainer} />;
+  return (
+    <>
+      <Toolbar setMode={(mode) => setMode(mode)} mode={mode} />
+      <div ref={viewContainer} />;
+    </>
+  );
 };
 
 const updateView = (viewContainer, { nodes, links }) => {
@@ -110,32 +157,11 @@ const updateView = (viewContainer, { nodes, links }) => {
     .text("akdlfj");
 };
 
-const Toolbar = () => {
-  const viewDataContext = useContext(ViewDataContext);
-  const { nodes, links, nodesDispatch, linksDispatch } = viewDataContext;
-
-  return (
-    <div onClick={() => nodesDispatch("addNode")}>add a god damn node</div>
-  );
-};
-
 const RoadmapCreator = () => {
   const [nodes, nodesDispatch] = useReducer(NodesReducer, initialNodes);
   const [links, linksDispatch] = useReducer(LinksReducer, initialLinks);
 
-  return (
-    <ViewDataContext.Provider
-      value={{
-        nodes: nodes,
-        nodesDispatch: nodesDispatch,
-        links: links,
-        linksDispatch: linksDispatch,
-      }}
-    >
-      <Toolbar />
-      <RoadmapCreatorView />
-    </ViewDataContext.Provider>
-  );
+  return <RoadmapCreatorView />;
 };
 
 export default RoadmapCreator;

@@ -55,6 +55,8 @@ const RoadmapCreatorView = () => {
   const [mode, setMode] = useState();
 
   const viewContainer = useRef(null);
+  const circleNodesContainer = useRef(null);
+  const textNodesContainer = useRef(null);
   const width = 2048;
   const height = 1024;
 
@@ -92,19 +94,39 @@ const RoadmapCreatorView = () => {
   }, [mode]);
   useEffect(() => {
     console.log("nodes updated, new nodes: ", { nodes });
-    d3.select(viewContainer.current).call((viewContainer) =>
-      updateView(viewContainer, { nodes, links })
-    );
+    d3.select(viewContainer.current).call((viewContainer) => {
+      updateView(
+        viewContainer,
+        d3.select(circleNodesContainer.current),
+        d3.select(textNodesContainer.current),
+        {
+          nodes,
+          links,
+        }
+      );
+    });
   }, [nodes, links]);
   return (
     <>
       <Toolbar setMode={(mode) => setMode(mode)} mode={mode} />
-      <div ref={viewContainer} />;
+      <div ref={viewContainer}>
+        <svg
+          ref={circleNodesContainer}
+          style={{ width: width, height: height, position: "absolute" }}
+        ></svg>
+        <div ref={textNodesContainer}></div>
+      </div>
+      ;
     </>
   );
 };
 
-const updateView = (viewContainer, { nodes, links }) => {
+const updateView = (
+  viewContainer,
+  circleNodesContainer,
+  textNodesContainer,
+  { nodes, links }
+) => {
   /* structure: 
     <div class="everything-container">
         <svg><circle/></svg>
@@ -113,43 +135,39 @@ const updateView = (viewContainer, { nodes, links }) => {
         <div contentEditable></div>
     </div>
   */
+
   const circleNodesData = nodes.filter((node) => node.type === "circle");
   const textNodesData = nodes.filter((node) => node.type === "text");
 
-  const nodesEnter = viewContainer
-    .selectAll(".circleNodeContainer,.textNodeContainer")
-    .data(nodes)
-    .enter();
-
-  const circleNodesEnter = viewContainer
-    .selectAll(".circleNodeContainer")
+  const circleNodesEnter = circleNodesContainer
+    .selectAll(".circleNode")
     .data(circleNodesData)
     .enter();
 
-  const textNodesEnter = viewContainer
-    .selectAll(".textNodeContainer")
+  const textNodesEnter = textNodesContainer
+    .selectAll(".textNode")
     .data(textNodesData)
     .enter();
 
-  console.log({ circleNodesEnter });
-  console.log({ textNodesEnter });
-
   circleNodesEnter
-    .append("svg")
-    .attr("class", "circleNodeContainer")
-    .style("position", "absolute")
-    .attr("width", "100%")
-    .attr("height", "100%")
     .append("circle")
+    .attr("class", "circleNode")
     .attr("r", 30)
     .attr("cx", (d) => d.x)
-    .attr("cy", (d) => d.y);
+    .attr("cy", (d) => d.y)
+    .style("fill", "#FFFFFF")
+    .style("stroke", "#000000")
+    .style("stroke-width", "3px");
 
   textNodesEnter
     .append("div")
-    .attr("class", "textNodeContainer")
+    .attr("class", "textNode")
     .style("position", "absolute")
     .style("transform", (d) => `translate(${d.x}px, ${d.y}px)`)
+    .style("border", "1px solid black")
+    .style("background", "#FFFFFF")
+    .style("padding", "5px 10px 5px 10px")
+    .style("border-radius", "7px")
     .attr("contenteditable", true)
     .text("akdlfj");
 };

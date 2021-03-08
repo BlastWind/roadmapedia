@@ -78,6 +78,7 @@ const RoadmapCreatorView = () => {
       .style("height", height / 2 + "px")
       .style("background", "#ffcc3b26")
       .on("click", () => {
+        /*
         dispatchNodeOperation({
           operationName: "addNode",
           nodeData: {
@@ -85,7 +86,9 @@ const RoadmapCreatorView = () => {
             y: 100 + 200 * Math.random(),
             type: "circle",
           },
+          
         });
+        */
       });
   }, []);
 
@@ -157,7 +160,29 @@ const updateView = (
     .attr("cy", (d) => d.y)
     .style("fill", "#FFFFFF")
     .style("stroke", "#000000")
-    .style("stroke-width", "3px");
+    .style("stroke-width", "3px")
+    .call(
+      d3
+        .drag()
+        .on("start", dragstarted)
+        .on("drag", dragged)
+        .on("end", dragended)
+    );
+
+  function dragstarted(d) {
+    circleNodesContainer.raise();
+    d3.select(this).raise().classed("active", true);
+  }
+
+  function dragged(d) {
+    d3.select(this)
+      .attr("cx", (d.x = d3.event.x))
+      .attr("cy", (d.y = d3.event.y));
+  }
+
+  function dragended(d) {
+    d3.select(this).classed("active", false);
+  }
 
   textNodesEnter
     .append("div")

@@ -141,60 +141,98 @@ const updateView = (
 
   const circleNodesData = nodes.filter((node) => node.type === "circle");
   const textNodesData = nodes.filter((node) => node.type === "text");
-
+  const textElementName = "textNodeContainer";
+  const circleElementName = "circleNode";
   const circleNodesEnter = circleNodesContainer
-    .selectAll(".circleNode")
+    .selectAll(`.${circleElementName}`)
     .data(circleNodesData)
     .enter();
 
   const textNodesEnter = textNodesContainer
-    .selectAll(".textNode")
+    .selectAll(`.${textElementName}`)
     .data(textNodesData)
     .enter();
 
   circleNodesEnter
     .append("circle")
-    .attr("class", "circleNode")
+    .attr("class", circleElementName)
     .attr("r", 30)
     .attr("cx", (d) => d.x)
     .attr("cy", (d) => d.y)
     .style("fill", "#FFFFFF")
     .style("stroke", "#000000")
     .style("stroke-width", "3px")
-    .call(
-      d3
-        .drag()
-        .on("start", dragstarted)
-        .on("drag", dragged)
-        .on("end", dragended)
-    );
+    .call(attachCircleDrag());
 
-  function dragstarted(d) {
-    circleNodesContainer.raise();
-    d3.select(this).raise().classed("active", true);
-  }
-
-  function dragged(d) {
-    d3.select(this)
-      .attr("cx", (d.x = d3.event.x))
-      .attr("cy", (d.y = d3.event.y));
-  }
-
-  function dragended(d) {
-    d3.select(this).classed("active", false);
-  }
-
-  textNodesEnter
+  var textNodesContainer = textNodesEnter
     .append("div")
-    .attr("class", "textNode")
+    .attr("class", textElementName)
+    .style("padding", "10px 20px 10px 20px")
     .style("position", "absolute")
     .style("transform", (d) => `translate(${d.x}px, ${d.y}px)`)
     .style("border", "1px solid black")
     .style("background", "#FFFFFF")
-    .style("padding", "5px 10px 5px 10px")
     .style("border-radius", "7px")
+    .call(attachTextDrag());
+
+  textNodesContainer
+    .append("div")
     .attr("contenteditable", true)
-    .text("akdlfj");
+    .text("akdlfj")
+    .call(() => {
+      return d3.drag().on("start", null).on("drag", null).on("end", null);
+    });
+  function attachCircleDrag() {
+    return d3
+      .drag()
+      .on("start", dragstarted)
+      .on("drag", dragged)
+      .on("end", dragended);
+
+    function dragstarted(d) {
+      circleNodesContainer.raise();
+      d3.select(this).raise().classed("active", true);
+    }
+
+    function dragged(d) {
+      d3.select(this)
+        .attr("cx", (d.x = d3.event.x))
+        .attr("cy", (d.y = d3.event.y));
+    }
+
+    function dragended(d) {
+      d3.select(this).classed("active", false);
+      circleNodesContainer.lower();
+    }
+  }
+
+  function attachTextDrag() {
+    return d3
+      .drag()
+      .on("start", dragstarted)
+      .on("drag", dragged)
+      .on("end", dragended)
+      .filter(() => {
+        if (d3.event.target.className === "textNodeContainer") {
+          return true;
+        }
+      });
+
+    function dragstarted(d, e, i) {
+      d3.select(this).raise().classed("active", true);
+    }
+
+    function dragged(d) {
+      d3.select(this).style(
+        "transform",
+        `translate(${(d.x = d3.event.x)}px, ${(d.y = d3.event.y)}px)`
+      );
+    }
+
+    function dragended(d) {
+      d3.select(this).classed("active", false);
+    }
+  }
 };
 
 const RoadmapCreator = () => {

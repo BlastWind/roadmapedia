@@ -17,7 +17,7 @@ const Toolbar = ({ setMode, mode }) => {
     const { nodes, links, nodesDispatch, linksDispatch } = viewDataContext;
   */
 
-  const modes = ["addNode", "addLink"];
+  const modes = ["select", "addNode", "addLink"];
   //<div onClick={() => nodesDispatch("addNode")}>add a god damn node</div>
 
   return (
@@ -54,7 +54,8 @@ const Toolbar = ({ setMode, mode }) => {
 const RoadmapCreatorView = () => {
   const [nodes, setNodes] = useState(initialNodes);
   const [links, setLinks] = useState(initialLinks);
-  const [mode, setMode] = useState();
+  const [mode, setMode] = useState("select");
+  const [hasAddNodeBeenInView, setHasAddNodeBeenInView] = useState(false);
 
   const viewContainer = useRef(null);
   const circleNodesContainer = useRef(null);
@@ -97,6 +98,7 @@ const RoadmapCreatorView = () => {
 
   useEffect(() => {
     console.log("mode updated to " + mode);
+    setHasAddNodeBeenInView(false);
   }, [mode]);
   useEffect(() => {
     console.log("nodes updated, new nodes: ", { nodes });
@@ -112,34 +114,20 @@ const RoadmapCreatorView = () => {
     if (!addNodeOverlayContainer.current) {
       return;
     }
-    /*
-    const {
-      x,
-      y,
-      width,
-      height,
-    } = viewContainer.current.getBoundingClientRect();
-    if (
-      event.clientX > x &&
-      event.clientX < x + width &&
-      event.clientY > y &&
-      event.clientY < y + height
-    ) {
-    }
-*/
+    setHasAddNodeBeenInView(true);
     addNodeOverlayContainer.current.style.transform = `translate(${
       event.clientX - 33
     }px, ${event.clientY - 33 - 38}px)`;
   };
-  let isAddNodeInView = true;
   return (
     <div>
       <Toolbar setMode={(mode) => setMode(mode)} mode={mode} />
       <div ref={viewContainer} onMouseMove={handleMouseMove}>
-        {mode === "addNode" && isAddNodeInView && (
+        {mode === "addNode" && (
           <svg
             ref={addNodeOverlayContainer}
             style={{
+              visibility: hasAddNodeBeenInView ? "visible" : "hidden",
               strokeWidth: "3px",
               stroke: "black",
               strokeDasharray: [20, 7],

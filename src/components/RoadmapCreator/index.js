@@ -28,6 +28,8 @@ const Toolbar = ({ setMode, mode }) => {
           background: "black",
           color: "white",
           userSelect: "none",
+          position: "relative",
+          zIndex: 1,
         }}
       >
         {modes.map((eachMode, i) => (
@@ -57,6 +59,7 @@ const RoadmapCreatorView = () => {
   const viewContainer = useRef(null);
   const circleNodesContainer = useRef(null);
   const textNodesContainer = useRef(null);
+  const addNodeOverlayContainer = useRef(null);
   const width = 2048;
   const height = 1024;
 
@@ -104,11 +107,51 @@ const RoadmapCreatorView = () => {
       });
     });
   }, [nodes, links]);
+
+  const handleMouseMove = (event) => {
+    if (!addNodeOverlayContainer.current) {
+      return;
+    }
+    /*
+    const {
+      x,
+      y,
+      width,
+      height,
+    } = viewContainer.current.getBoundingClientRect();
+    if (
+      event.clientX > x &&
+      event.clientX < x + width &&
+      event.clientY > y &&
+      event.clientY < y + height
+    ) {
+    }
+*/
+    addNodeOverlayContainer.current.style.transform = `translate(${
+      event.clientX - 33
+    }px, ${event.clientY - 33 - 38}px)`;
+  };
+  let isAddNodeInView = true;
   return (
-    <>
+    <div>
       <Toolbar setMode={(mode) => setMode(mode)} mode={mode} />
-      <div ref={viewContainer}></div>;
-    </>
+      <div ref={viewContainer} onMouseMove={handleMouseMove}>
+        {mode === "addNode" && isAddNodeInView && (
+          <svg
+            ref={addNodeOverlayContainer}
+            style={{
+              strokeWidth: "3px",
+              stroke: "black",
+              strokeDasharray: [20, 7],
+              width: "66px",
+              height: "66px",
+            }}
+          >
+            <circle r={30} cx={33} cy={33} fill="#D5F3FE" />
+          </svg>
+        )}
+      </div>
+    </div>
   );
 };
 

@@ -17,7 +17,7 @@ const Toolbar = ({ setMode, mode }) => {
     const { nodes, links, nodesDispatch, linksDispatch } = viewDataContext;
   */
 
-  const modes = ["select", "addNode", "addLink"];
+  const modes = ["select", "addCircleNode", "addTextNode", "addLink"];
   //<div onClick={() => nodesDispatch("addNode")}>add a god damn node</div>
 
   return (
@@ -55,12 +55,15 @@ const RoadmapCreatorView = () => {
   const [nodes, setNodes] = useState(initialNodes);
   const [links, setLinks] = useState(initialLinks);
   const [mode, setMode] = useState("select");
-  const [hasAddNodeBeenInView, setHasAddNodeBeenInView] = useState(false);
+  const [hasAddCircleNodeBeenInView, sethasAddCircleNodeBeenInView] = useState(
+    false
+  );
 
   const viewContainer = useRef(null);
   const circleNodesContainer = useRef(null);
   const textNodesContainer = useRef(null);
-  const addNodeOverlayContainer = useRef(null);
+  const addCircleNodeOverlayContainer = useRef(null);
+  const addTextNodeOverlayContainer = useRef(null);
   const width = 2048;
   const height = 1024;
 
@@ -68,7 +71,7 @@ const RoadmapCreatorView = () => {
     const { operationName, nodeData, linkData } = operation;
     console.log({ operationName, nodeData });
     switch (operationName) {
-      case "addNode":
+      case "addCircleNode":
         setNodes((nodes) => [...nodes, nodeData]);
         break;
       default:
@@ -84,7 +87,7 @@ const RoadmapCreatorView = () => {
       .on("click", () => {
         /*
         dispatchNodeOperation({
-          operationName: "addNode",
+          operationName: "addCircleNode",
           nodeData: {
             x: 100 + 200 * Math.random(),
             y: 100 + 200 * Math.random(),
@@ -98,7 +101,7 @@ const RoadmapCreatorView = () => {
 
   useEffect(() => {
     console.log("mode updated to " + mode);
-    setHasAddNodeBeenInView(false);
+    sethasAddCircleNodeBeenInView(false);
   }, [mode]);
   useEffect(() => {
     d3.select(viewContainer.current).call((viewContainer) => {
@@ -110,17 +113,21 @@ const RoadmapCreatorView = () => {
   }, [nodes, links]);
 
   const handleMouseMove = (event) => {
-    if (!addNodeOverlayContainer.current) {
+    if (!addCircleNodeOverlayContainer.current) {
       return;
     }
-    setHasAddNodeBeenInView(true);
-    addNodeOverlayContainer.current.style.transform = `translate(${
+    sethasAddCircleNodeBeenInView(true);
+    const ToolbarHeight = 38;
+    //TODO: if body has margin, might need to adjust this more
+    addCircleNodeOverlayContainer.current.style.transform = `translate(${
       event.clientX - 33
-    }px, ${event.clientY - 33 - 38}px)`;
+    }px, ${event.clientY - 33 - ToolbarHeight}px)`;
   };
 
   const handleMouseClick = (event) => {
-    console.log("mouse clicked");
+    if (!(mode === "addCircleNode" && hasAddCircleNodeBeenInView)) {
+      return;
+    }
     let target = event.target;
     while (target !== viewContainer.current) {
       target = target.parentNode;
@@ -128,7 +135,6 @@ const RoadmapCreatorView = () => {
     const { left, top } = target.getBoundingClientRect();
     const x = event.clientX - left;
     const y = event.clientY - top;
-    console.log("append cirlce at...", x, y);
     setNodes([...nodes, { type: "circle", x: x, y: y, id: nodes.length }]);
   };
 
@@ -140,20 +146,37 @@ const RoadmapCreatorView = () => {
         onMouseMove={handleMouseMove}
         onClick={handleMouseClick}
       >
-        {mode === "addNode" && (
+        {mode === "addCircleNode" && (
           <svg
-            ref={addNodeOverlayContainer}
+            ref={addCircleNodeOverlayContainer}
             style={{
-              visibility: hasAddNodeBeenInView ? "visible" : "hidden",
-              strokeWidth: "3px",
-              stroke: "black",
-              strokeDasharray: [20, 7],
+              visibility: hasAddCircleNodeBeenInView ? "visible" : "hidden",
               width: "66px",
               height: "66px",
+              position: "absolute",
             }}
           >
-            <circle r={30} cx={33} cy={33} fill="#D5F3FE" />
+            <circle
+              r={30}
+              cx={33}
+              cy={33}
+              strokeWidth="3px"
+              stroke="black"
+              strokeDasharray={[20, 7]}
+              fill="#D5F3FE"
+            />
           </svg>
+        )}
+        {mode === "addTextNode" && (
+          <div
+            ref={addTextNodeOverlayContainer}
+            style={{
+              visibility: hasAddTextNodeBeenInView ? "visible" : "hidden",
+              width: "66px",
+              height: "66px",
+              position: "absolute",
+            }}
+          ></div>
         )}
       </div>
     </div>
@@ -175,6 +198,8 @@ const updateView = (viewContainer, { nodes, links }) => {
   const circleNodesEnterData = [];
   const textNodesEnterData = [];
   nodesEnter.each((d, i, list) => {
+    // append containers with "enter" suffix
+    // in order to group select and use enter exit workflow later
     if (d.type === "circle") {
       const circleNodeContainer = viewContainer
         .append("svg")
@@ -193,11 +218,23 @@ const updateView = (viewContainer, { nodes, links }) => {
     .selectAll(`.${textElementName}-enter`)
     .data(textNodesData);
 
+  console.log({ circleNodesEnter });
+
   circleNodesEnter
     .style("position", "absolute")
     .attr("width", 2 * (radius + circleStrokeWidth))
     .attr("height", 2 * (radius + circleStrokeWidth))
-    .style("transform", (d) => `translate(${d.x}px, ${d.y}px)`)
+    .style("transform", function (d) {
+      console.log("new circle's x, y", d.x, d.y);
+      console.log(
+        `translate(${d.x - (radius + circleStrokeWidth)}px, ${
+          d.y - (radius + circleStrokeWidth)
+        }px)`
+      );
+      return `translate(${
+        d.x - (radius + circleStrokeWidth)
+      }px, ${d.y - (radius + circleStrokeWidth)}px)`;
+    })
     .call(attachCircleDrag())
     .append("circle")
     .attr("r", radius)
@@ -220,6 +257,8 @@ const updateView = (viewContainer, { nodes, links }) => {
     .attr("contenteditable", true)
     .text("akdlfj");
 
+  // nodes are no longer in data, enter, exit chain
+  // rename in order for next update selection to bypass
   d3.selectAll(`.${circleElementName}-enter`).attr("class", circleElementName);
   d3.selectAll(`.${textElementName}-enter`).attr("class", textElementName);
 
@@ -238,7 +277,9 @@ const updateView = (viewContainer, { nodes, links }) => {
     function dragged(d) {
       d3.select(this).style(
         "transform",
-        `translate(${(d.x = d3.event.x)}px, ${(d.y = d3.event.y)}px)`
+        `translate(${(d.x = d3.event.x) - (radius + circleStrokeWidth)}px, ${
+          (d.y = d3.event.y) - (radius + circleStrokeWidth)
+        }px)`
       );
     }
 
@@ -265,9 +306,11 @@ const updateView = (viewContainer, { nodes, links }) => {
     }
 
     function dragged(d) {
+      d.x = d3.event.x;
+      d.y = d3.event.y;
       d3.select(this).style(
         "transform",
-        `translate(${(d.x = d3.event.x)}px, ${(d.y = d3.event.y)}px)`
+        `translate(${d3.event.x}px, ${d3.event.y}px)`
       );
     }
 

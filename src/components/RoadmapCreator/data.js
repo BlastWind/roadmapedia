@@ -49,6 +49,7 @@ const initialNodes = [
     backgroundColor: "#FFFFFF",
     strokeColor: "#000000",
   },
+  { type: "circle", id: 3, x: 0, y: 0 },
 ];
 
 const initialLinks = [

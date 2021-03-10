@@ -129,7 +129,7 @@ const RoadmapCreatorView = () => {
     const x = event.clientX - left;
     const y = event.clientY - top;
     console.log("append cirlce at...", x, y);
-    setNodes([...nodes, { type: "circle", x: x, y: y }]);
+    setNodes([...nodes, { type: "circle", x: x, y: y, id: nodes.length }]);
   };
 
   return (
@@ -161,25 +161,13 @@ const RoadmapCreatorView = () => {
 };
 
 const updateView = (viewContainer, { nodes, links }) => {
-  /* structure: 
-    <div class="everything-container">
-        <svg><circle/></svg>
-        <svg><circle/></svg>
-        <div contentEditable></div>
-        <div contentEditable></div>
-    </div>
-  */
   const textNodesData = nodes.filter((node) => node.type === "text");
   const textElementName = "textNodeContainer";
   const circleElementName = "circleNodeContainer";
 
-  console.log(
-    "nodes selection",
-    viewContainer.selectAll(`.${circleElementName},.${textElementName}`)
-  );
   const nodesEnter = viewContainer
     .selectAll(`.${circleElementName},.${textElementName}`)
-    .data(nodes)
+    .data(nodes, (d) => d.id)
     .enter();
 
   const circleStrokeWidth = 3;
@@ -187,24 +175,25 @@ const updateView = (viewContainer, { nodes, links }) => {
   const circleNodesEnterData = [];
   const textNodesEnterData = [];
   nodesEnter.each((d, i, list) => {
-    console.log({ d }, { i }, { list });
     if (d.type === "circle") {
       const circleNodeContainer = viewContainer
         .append("svg")
         .attr("class", circleElementName + "-enter");
       circleNodesEnterData.push(d);
-
-      console.log({ circleNodeContainer });
     } else if (d.type === "text") {
-      viewContainer.append("div").attr("class", textElementName);
+      viewContainer.append("div").attr("class", textElementName + "-enter");
+      textNodesEnterData.push(d);
     }
   });
 
-  var circleNodesEnter = d3.selectAll(`.${circleElementName}-enter`);
-  var textNodesEnter = nodesEnter.filter((d) => d.type === "text");
+  var circleNodesEnter = d3
+    .selectAll(`.${circleElementName}-enter`)
+    .data(circleNodesEnterData);
+  var textNodesEnter = d3
+    .selectAll(`.${textElementName}-enter`)
+    .data(textNodesData);
 
   circleNodesEnter
-    .data(circleNodesEnterData)
     .style("position", "absolute")
     .attr("width", 2 * (radius + circleStrokeWidth))
     .attr("height", 2 * (radius + circleStrokeWidth))
@@ -218,10 +207,7 @@ const updateView = (viewContainer, { nodes, links }) => {
     .style("stroke", "#000000")
     .style("stroke-width", `${circleStrokeWidth}px`);
 
-  d3.selectAll(`.${circleElementName}-enter`).attr("class", circleElementName);
-
-  return;
-  textNodes
+  textNodesEnter
     .data(textNodesData)
     .style("padding", "10px 20px 10px 20px")
     .style("position", "absolute")
@@ -234,6 +220,9 @@ const updateView = (viewContainer, { nodes, links }) => {
     .attr("contenteditable", true)
     .text("akdlfj");
 
+  d3.selectAll(`.${circleElementName}-enter`).attr("class", circleElementName);
+  d3.selectAll(`.${textElementName}-enter`).attr("class", textElementName);
+
   function attachCircleDrag() {
     return d3
       .drag()
@@ -244,7 +233,6 @@ const updateView = (viewContainer, { nodes, links }) => {
     function dragstarted(d) {
       //circleNodesContainer.raise();
       d3.select(this).raise().classed("active", true);
-      console.log("drag started, coordinates to start at: ", d.x, d.y);
     }
 
     function dragged(d) {

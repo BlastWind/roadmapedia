@@ -4,7 +4,7 @@ const initialNodes = [
     id: 0,
     width: 150,
     height: 60,
-    text: [""],
+    text: "placeholder",
     x: 100,
     y: 300,
     backgroundColor: "#FFFFFF",

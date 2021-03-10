@@ -105,6 +105,7 @@ const RoadmapCreatorView = () => {
   useEffect(() => {
     console.log("mode updated to " + mode);
     setHasAddCircleNodeBeenInView(false);
+    setHasAddTextNodeBeenInView(false);
   }, [mode]);
   useEffect(() => {
     d3.select(viewContainer.current).call((viewContainer) => {
@@ -138,17 +139,27 @@ const RoadmapCreatorView = () => {
   };
 
   const handleMouseClick = (event) => {
-    if (!(mode === "addCircleNode" && hasAddCircleNodeBeenInView)) {
-      return;
+    if (
+      (mode === "addCircleNode" && hasAddCircleNodeBeenInView) ||
+      (mode === "addTextNode" && hasAddTextNodeBeenInView)
+    ) {
+      let target = event.target;
+      while (target !== viewContainer.current) {
+        target = target.parentNode;
+      }
+      const { left, top } = target.getBoundingClientRect();
+      const x = event.clientX - left;
+      const y = event.clientY - top;
+      setNodes([
+        ...nodes,
+        {
+          type: mode === "addCircleNode" ? "circle" : "text",
+          x: x,
+          y: y,
+          id: nodes.length,
+        },
+      ]);
     }
-    let target = event.target;
-    while (target !== viewContainer.current) {
-      target = target.parentNode;
-    }
-    const { left, top } = target.getBoundingClientRect();
-    const x = event.clientX - left;
-    const y = event.clientY - top;
-    setNodes([...nodes, { type: "circle", x: x, y: y, id: nodes.length }]);
   };
 
   return (
@@ -186,9 +197,10 @@ const RoadmapCreatorView = () => {
             style={{
               visibility: hasAddTextNodeBeenInView ? "visible" : "hidden",
               position: "absolute",
-              padding: " 10px 20px",
+              padding: " 10px 20px 10px 20px",
               background: "white",
               border: "1px solid black",
+              borderRadius: "7px ",
             }}
           ></div>
         )}
@@ -198,12 +210,11 @@ const RoadmapCreatorView = () => {
 };
 
 const updateView = (viewContainer, { nodes, links }) => {
-  const textNodesData = nodes.filter((node) => node.type === "text");
   const textElementName = "textNodeContainer";
   const circleElementName = "circleNodeContainer";
 
   const nodesEnter = viewContainer
-    .selectAll(`.${circleElementName},.${textElementName}`)
+    .selectAll(`.${textElementName},.${circleElementName}`)
     .data(nodes, (d) => d.id)
     .enter();
 
@@ -215,9 +226,7 @@ const updateView = (viewContainer, { nodes, links }) => {
     // append containers with "enter" suffix
     // in order to group select and use enter exit workflow later
     if (d.type === "circle") {
-      const circleNodeContainer = viewContainer
-        .append("svg")
-        .attr("class", circleElementName + "-enter");
+      viewContainer.append("svg").attr("class", circleElementName + "-enter");
       circleNodesEnterData.push(d);
     } else if (d.type === "text") {
       viewContainer.append("div").attr("class", textElementName + "-enter");
@@ -230,21 +239,13 @@ const updateView = (viewContainer, { nodes, links }) => {
     .data(circleNodesEnterData);
   var textNodesEnter = d3
     .selectAll(`.${textElementName}-enter`)
-    .data(textNodesData);
-
-  console.log({ circleNodesEnter });
+    .data(textNodesEnterData);
 
   circleNodesEnter
     .style("position", "absolute")
     .attr("width", 2 * (radius + circleStrokeWidth))
     .attr("height", 2 * (radius + circleStrokeWidth))
     .style("transform", function (d) {
-      console.log("new circle's x, y", d.x, d.y);
-      console.log(
-        `translate(${d.x - (radius + circleStrokeWidth)}px, ${
-          d.y - (radius + circleStrokeWidth)
-        }px)`
-      );
       return `translate(${
         d.x - (radius + circleStrokeWidth)
       }px, ${d.y - (radius + circleStrokeWidth)}px)`;
@@ -258,8 +259,7 @@ const updateView = (viewContainer, { nodes, links }) => {
     .style("stroke", "#000000")
     .style("stroke-width", `${circleStrokeWidth}px`);
 
-  textNodesEnter
-    .data(textNodesData)
+  const textNodeEditable = textNodesEnter
     .style("padding", "10px 20px 10px 20px")
     .style("position", "absolute")
     .style("transform", (d) => `translate(${d.x}px, ${d.y}px)`)
@@ -267,9 +267,29 @@ const updateView = (viewContainer, { nodes, links }) => {
     .style("background", "#FFFFFF")
     .style("border-radius", "7px")
     .call(attachTextDrag())
-    .append("div")
+    .append("div");
+
+  textNodeEditable
     .attr("contenteditable", true)
-    .text("akdlfj");
+    .style("min-width", "5px")
+    .text((d) => d.text)
+    .on("paste", (e, el) => {
+      // WARNING: execCommand is deprecated
+      d3.event.preventDefault();
+      var textToInsert = d3.event.clipboardData.getData("text/plain");
+      if (textToInsert.length > 1000) {
+        // ERROR MESSAGE
+        console.log("too long!");
+        return;
+      }
+      if (document.queryCommandSupported("insertText")) {
+        document.execCommand("insertText", false, textToInsert);
+      } else {
+        document.execCommand("paste", false, textToInsert);
+      }
+    });
+
+  console.log({ textNodesEnter }, { circleNodesEnter });
 
   // nodes are no longer in data, enter, exit chain
   // rename in order for next update selection to bypass

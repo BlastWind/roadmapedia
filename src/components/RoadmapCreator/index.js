@@ -55,7 +55,10 @@ const RoadmapCreatorView = () => {
   const [nodes, setNodes] = useState(initialNodes);
   const [links, setLinks] = useState(initialLinks);
   const [mode, setMode] = useState("select");
-  const [hasAddCircleNodeBeenInView, sethasAddCircleNodeBeenInView] = useState(
+  const [hasAddCircleNodeBeenInView, setHasAddCircleNodeBeenInView] = useState(
+    false
+  );
+  const [hasAddTextNodeBeenInView, setHasAddTextNodeBeenInView] = useState(
     false
   );
 
@@ -101,7 +104,7 @@ const RoadmapCreatorView = () => {
 
   useEffect(() => {
     console.log("mode updated to " + mode);
-    sethasAddCircleNodeBeenInView(false);
+    setHasAddCircleNodeBeenInView(false);
   }, [mode]);
   useEffect(() => {
     d3.select(viewContainer.current).call((viewContainer) => {
@@ -113,15 +116,25 @@ const RoadmapCreatorView = () => {
   }, [nodes, links]);
 
   const handleMouseMove = (event) => {
-    if (!addCircleNodeOverlayContainer.current) {
-      return;
+    if (addCircleNodeOverlayContainer.current) {
+      setHasAddCircleNodeBeenInView(true);
+      const ToolbarHeight = 38;
+      //TODO: if body has margin, might need to adjust this more
+      addCircleNodeOverlayContainer.current.style.transform = `translate(${
+        event.clientX - 33
+      }px, ${event.clientY - 33 - ToolbarHeight}px)`;
+    } else if (addTextNodeOverlayContainer.current) {
+      setHasAddTextNodeBeenInView(true);
+      const ToolbarHeight = 38;
+      const {
+        width: textNodeWidth,
+        height: textNodeHeight,
+      } = addTextNodeOverlayContainer.current.getBoundingClientRect();
+      //TODO: if body has margin, might need to adjust this more
+      addTextNodeOverlayContainer.current.style.transform = `translate(${
+        event.clientX - textNodeWidth / 2
+      }px, ${event.clientY - ToolbarHeight - textNodeHeight / 2}px)`;
     }
-    sethasAddCircleNodeBeenInView(true);
-    const ToolbarHeight = 38;
-    //TODO: if body has margin, might need to adjust this more
-    addCircleNodeOverlayContainer.current.style.transform = `translate(${
-      event.clientX - 33
-    }px, ${event.clientY - 33 - ToolbarHeight}px)`;
   };
 
   const handleMouseClick = (event) => {
@@ -172,9 +185,10 @@ const RoadmapCreatorView = () => {
             ref={addTextNodeOverlayContainer}
             style={{
               visibility: hasAddTextNodeBeenInView ? "visible" : "hidden",
-              width: "66px",
-              height: "66px",
               position: "absolute",
+              padding: " 10px 20px",
+              background: "white",
+              border: "1px solid black",
             }}
           ></div>
         )}

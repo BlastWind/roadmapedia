@@ -97,13 +97,26 @@ const RoadmapCreatorView = () => {
 
   useEffect(() => {
     console.log("mode updated to " + mode);
+    if (mode === "addTextNode") {
+      d3.selectAll(".textNodeContainer>.editableText")
+        .attr("contenteditable", false)
+        .style("user-select", "none");
+    } else if (mode === "select") {
+      d3.selectAll(".textNodeContainer>.editableText")
+        .attr("contenteditable", true)
+        .style("user-select", "auto");
+    }
   }, [mode]);
   useEffect(() => {
     d3.select(viewContainer.current).call((viewContainer) => {
-      updateView(viewContainer, {
-        nodes,
-        links,
-      });
+      updateView(
+        viewContainer,
+        {
+          nodes,
+          links,
+        },
+        mode
+      );
     });
   }, [nodes, links]);
 
@@ -139,12 +152,13 @@ const RoadmapCreatorView = () => {
       const { left, top } = target.getBoundingClientRect();
       const x = event.clientX - left;
       const y = event.clientY - top;
+
       setNodes([
         ...nodes,
         {
           type: mode === "addCircleNode" ? "circle" : "text",
-          x: x,
-          y: y,
+          x: mode === "addCircleNode" ? x : x - 16,
+          y: mode === "addCircleNode" ? y : y - 20,
           id: nodes.length,
         },
       ]);
@@ -207,12 +221,13 @@ const RoadmapCreatorView = () => {
   );
 };
 
-const updateView = (viewContainer, { nodes, links }) => {
-  const textElementName = "textNodeContainer";
-  const circleElementName = "circleNodeContainer";
+const updateView = (viewContainer, { nodes, links }, mode) => {
+  const textContainerEleName = "textNodeContainer";
+  const circleContainerEleName = "circleNodeContainer";
+  const textInputEleName = "editableText";
 
   const nodesEnter = viewContainer
-    .selectAll(`.${textElementName},.${circleElementName}`)
+    .selectAll(`.${textContainerEleName},.${circleContainerEleName}`)
     .data(nodes, (d) => d.id)
     .enter();
 
@@ -224,19 +239,23 @@ const updateView = (viewContainer, { nodes, links }) => {
     // append containers with "enter" suffix
     // in order to group select and use enter exit workflow later
     if (d.type === "circle") {
-      viewContainer.append("svg").attr("class", circleElementName + "-enter");
+      viewContainer
+        .append("svg")
+        .attr("class", circleContainerEleName + "-enter");
       circleNodesEnterData.push(d);
     } else if (d.type === "text") {
-      viewContainer.append("div").attr("class", textElementName + "-enter");
+      viewContainer
+        .append("div")
+        .attr("class", textContainerEleName + "-enter");
       textNodesEnterData.push(d);
     }
   });
 
   var circleNodesEnter = d3
-    .selectAll(`.${circleElementName}-enter`)
+    .selectAll(`.${circleContainerEleName}-enter`)
     .data(circleNodesEnterData);
   var textNodesEnter = d3
-    .selectAll(`.${textElementName}-enter`)
+    .selectAll(`.${textContainerEleName}-enter`)
     .data(textNodesEnterData);
 
   circleNodesEnter
@@ -258,7 +277,7 @@ const updateView = (viewContainer, { nodes, links }) => {
     .style("stroke-width", `${circleStrokeWidth}px`);
 
   const textNodeEditable = textNodesEnter
-    .style("padding", "10px 20px 10px 20px")
+    .style("padding", "10px 10px 10px 10px")
     .style("position", "absolute")
     .style("transform", (d) => `translate(${d.x}px, ${d.y}px)`)
     .style("border", "1px solid black")
@@ -268,8 +287,11 @@ const updateView = (viewContainer, { nodes, links }) => {
     .append("div");
 
   textNodeEditable
-    .attr("contenteditable", true)
-    .style("min-width", "5px")
+    .attr("contenteditable", mode === "addTextNode" ? false : true)
+    .style("user-select", mode === "addTextNode" ? "none" : "auto")
+    .attr("class", textInputEleName)
+    .style("min-width", "10px")
+    .style("min-height", "18px") // verbose because height = 0 if not contenteditable
     .text((d) => d.text)
     .on("paste", (e, el) => {
       // WARNING: execCommand is deprecated
@@ -291,8 +313,14 @@ const updateView = (viewContainer, { nodes, links }) => {
 
   // nodes are no longer in data, enter, exit chain
   // rename in order for next update selection to bypass
-  d3.selectAll(`.${circleElementName}-enter`).attr("class", circleElementName);
-  d3.selectAll(`.${textElementName}-enter`).attr("class", textElementName);
+  d3.selectAll(`.${circleContainerEleName}-enter`).attr(
+    "class",
+    circleContainerEleName
+  );
+  d3.selectAll(`.${textContainerEleName}-enter`).attr(
+    "class",
+    textContainerEleName
+  );
 
   function attachCircleDrag() {
     return d3

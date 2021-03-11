@@ -55,16 +55,9 @@ const RoadmapCreatorView = () => {
   const [nodes, setNodes] = useState(initialNodes);
   const [links, setLinks] = useState(initialLinks);
   const [mode, setMode] = useState("select");
-  const [hasAddCircleNodeBeenInView, setHasAddCircleNodeBeenInView] = useState(
-    false
-  );
-  const [hasAddTextNodeBeenInView, setHasAddTextNodeBeenInView] = useState(
-    false
-  );
+  const [isCursorInView, setIsCursorInView] = useState(false);
 
   const viewContainer = useRef(null);
-  const circleNodesContainer = useRef(null);
-  const textNodesContainer = useRef(null);
   const addCircleNodeOverlayContainer = useRef(null);
   const addTextNodeOverlayContainer = useRef(null);
   const width = 2048;
@@ -104,8 +97,6 @@ const RoadmapCreatorView = () => {
 
   useEffect(() => {
     console.log("mode updated to " + mode);
-    setHasAddCircleNodeBeenInView(false);
-    setHasAddTextNodeBeenInView(false);
   }, [mode]);
   useEffect(() => {
     d3.select(viewContainer.current).call((viewContainer) => {
@@ -118,14 +109,12 @@ const RoadmapCreatorView = () => {
 
   const handleMouseMove = (event) => {
     if (addCircleNodeOverlayContainer.current) {
-      setHasAddCircleNodeBeenInView(true);
       const ToolbarHeight = 38;
       //TODO: if body has margin, might need to adjust this more
       addCircleNodeOverlayContainer.current.style.transform = `translate(${
         event.clientX - 33
       }px, ${event.clientY - 33 - ToolbarHeight}px)`;
     } else if (addTextNodeOverlayContainer.current) {
-      setHasAddTextNodeBeenInView(true);
       const ToolbarHeight = 38;
       const {
         width: textNodeWidth,
@@ -140,8 +129,8 @@ const RoadmapCreatorView = () => {
 
   const handleMouseClick = (event) => {
     if (
-      (mode === "addCircleNode" && hasAddCircleNodeBeenInView) ||
-      (mode === "addTextNode" && hasAddTextNodeBeenInView)
+      (mode === "addCircleNode" || mode === "addTextNode") &&
+      isCursorInView
     ) {
       let target = event.target;
       while (target !== viewContainer.current) {
@@ -162,19 +151,28 @@ const RoadmapCreatorView = () => {
     }
   };
 
+  const handleMouseLeave = (event) => {
+    setIsCursorInView(false);
+  };
+
+  const handleMouseEnter = () => {
+    setIsCursorInView(true);
+  };
   return (
     <div>
       <Toolbar setMode={(mode) => setMode(mode)} mode={mode} />
       <div
         ref={viewContainer}
         onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        onMouseEnter={handleMouseEnter}
         onClick={handleMouseClick}
       >
         {mode === "addCircleNode" && (
           <svg
             ref={addCircleNodeOverlayContainer}
             style={{
-              visibility: hasAddCircleNodeBeenInView ? "visible" : "hidden",
+              visibility: isCursorInView ? "visible" : "hidden",
               width: "66px",
               height: "66px",
               position: "absolute",
@@ -195,7 +193,7 @@ const RoadmapCreatorView = () => {
           <div
             ref={addTextNodeOverlayContainer}
             style={{
-              visibility: hasAddTextNodeBeenInView ? "visible" : "hidden",
+              visibility: isCursorInView ? "visible" : "hidden",
               position: "absolute",
               padding: " 10px 20px 10px 20px",
               background: "white",

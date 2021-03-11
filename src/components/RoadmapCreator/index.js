@@ -58,8 +58,9 @@ const RoadmapCreatorView = () => {
   const [isCursorInView, setIsCursorInView] = useState(false);
 
   const viewContainer = useRef(null);
-  const addCircleNodeOverlayContainer = useRef(null);
-  const addTextNodeOverlayContainer = useRef(null);
+  const addNodeCircleElement = useRef(null);
+  const addNodeTextElement = useRef(null);
+  const addNodeOverlay = useRef(null);
   const width = 2048;
   const height = 1024;
 
@@ -121,20 +122,20 @@ const RoadmapCreatorView = () => {
   }, [nodes, links]);
 
   const handleMouseMove = (event) => {
-    if (addCircleNodeOverlayContainer.current) {
+    if (addNodeCircleElement.current) {
       const ToolbarHeight = 38;
       //TODO: if body has margin, might need to adjust this more
-      addCircleNodeOverlayContainer.current.style.transform = `translate(${
+      addNodeCircleElement.current.style.transform = `translate(${
         event.clientX - 33
       }px, ${event.clientY - 33 - ToolbarHeight}px)`;
-    } else if (addTextNodeOverlayContainer.current) {
+    } else if (addNodeTextElement.current) {
       const ToolbarHeight = 38;
       const {
         width: textNodeWidth,
         height: textNodeHeight,
-      } = addTextNodeOverlayContainer.current.getBoundingClientRect();
+      } = addNodeTextElement.current.getBoundingClientRect();
       //TODO: if body has margin, might need to adjust this more
-      addTextNodeOverlayContainer.current.style.transform = `translate(${
+      addNodeTextElement.current.style.transform = `translate(${
         event.clientX - textNodeWidth / 2
       }px, ${event.clientY - ToolbarHeight - textNodeHeight / 2}px)`;
     }
@@ -146,7 +147,7 @@ const RoadmapCreatorView = () => {
       isCursorInView
     ) {
       let target = event.target;
-      while (target !== viewContainer.current) {
+      while (target !== addNodeOverlay.current) {
         target = target.parentNode;
       }
       const { left, top } = target.getBoundingClientRect();
@@ -175,53 +176,57 @@ const RoadmapCreatorView = () => {
   return (
     <div>
       <Toolbar setMode={(mode) => setMode(mode)} mode={mode} />
-      <div
-        ref={viewContainer}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        onMouseEnter={handleMouseEnter}
-        onClick={handleMouseClick}
-      >
-        {mode === "addCircleNode" && (
-          <svg
-            ref={addCircleNodeOverlayContainer}
-            style={{
-              visibility: isCursorInView ? "visible" : "hidden",
-              width: "66px",
-              height: "66px",
-              position: "absolute",
-            }}
-          >
-            <circle
-              r={30}
-              cx={33}
-              cy={33}
-              strokeWidth="3px"
-              stroke="black"
-              strokeDasharray={[20, 7]}
-              fill="#D5F3FE"
-            />
-          </svg>
-        )}
-        {mode === "addTextNode" && (
-          <div
-            ref={addTextNodeOverlayContainer}
-            style={{
-              visibility: isCursorInView ? "visible" : "hidden",
-              position: "absolute",
-              padding: " 10px 20px 10px 20px",
-              background: "white",
-              border: "1px solid black",
-              borderRadius: "7px ",
-            }}
-          ></div>
-        )}
-      </div>
+      <div ref={viewContainer} style={{ position: "absolute" }}></div>
+      {(mode === "addCircleNode" || mode === "addTextNode") && (
+        <div
+          ref={addNodeOverlay}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+          onMouseEnter={handleMouseEnter}
+          onClick={handleMouseClick}
+          style={{ position: "absolute", width: "100%", height: "100%" }}
+        >
+          {mode === "addCircleNode" && (
+            <svg
+              ref={addNodeCircleElement}
+              style={{
+                visibility: isCursorInView ? "visible" : "hidden",
+                width: "66px",
+                height: "66px",
+                position: "absolute",
+              }}
+            >
+              <circle
+                r={30}
+                cx={33}
+                cy={33}
+                strokeWidth="3px"
+                stroke="black"
+                strokeDasharray={[20, 7]}
+                fill="#D5F3FE"
+              />
+            </svg>
+          )}
+          {mode === "addTextNode" && (
+            <div
+              ref={addNodeTextElement}
+              style={{
+                visibility: isCursorInView ? "visible" : "hidden",
+                position: "absolute",
+                padding: " 10px 20px 10px 20px",
+                background: "white",
+                border: "1px solid black",
+                borderRadius: "7px ",
+              }}
+            ></div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
 
-const updateView = (viewContainer, { nodes, links }, mode) => {
+const updateView = (viewContainer, { nodes, links }) => {
   const textContainerEleName = "textNodeContainer";
   const circleContainerEleName = "circleNodeContainer";
   const textInputEleName = "editableText";
@@ -287,8 +292,7 @@ const updateView = (viewContainer, { nodes, links }, mode) => {
     .append("div");
 
   textNodeEditable
-    .attr("contenteditable", mode === "addTextNode" ? false : true)
-    .style("user-select", mode === "addTextNode" ? "none" : "auto")
+    .attr("contenteditable", true)
     .attr("class", textInputEleName)
     .style("min-width", "10px")
     .style("min-height", "18px") // verbose because height = 0 if not contenteditable

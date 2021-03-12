@@ -63,11 +63,12 @@ const updateView = (
   const circleContainerEleName = "circleNodeContainer";
   const textInputEleName = "editableText";
 
-  const nodesEnter = viewContainer
+  const nodesAll = viewContainer
     .selectAll(`.${textContainerEleName},.${circleContainerEleName}`)
-    .data(nodes, (d) => d.id)
-    .enter();
+    .data(nodes, (d) => d.id);
 
+  const nodesEnter = nodesAll.enter();
+  const nodesExit = nodesAll.exit();
   const circleStrokeWidth = 3;
   const radius = 30;
   const circleNodesEnterData = [];
@@ -300,6 +301,27 @@ const RoadmapCreatorView = () => {
         
       });
       */
+    d3.select(window).on("keydown", function () {
+      // TODO: If typing in contenteditable: exit
+      switch (d3.event.keyCode) {
+        case 46:
+          // TODO: Incomplete for links
+          console.log({ selectedElement });
+          if (selectedElement) {
+            const deleteId = selectedElement.id;
+            console.log(deleteId);
+            updateView(
+              d3.select(viewContainer.current),
+              { nodes, links },
+              { selectedElement, setSelectedElement }
+            );
+          }
+
+          break;
+        default:
+          break;
+      }
+    });
   }, []);
 
   useEffect(() => {

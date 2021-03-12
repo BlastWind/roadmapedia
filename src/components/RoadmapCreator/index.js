@@ -7,9 +7,11 @@ import React, {
 } from "react";
 import * as d3 from "d3";
 import { nodes as nodesData, links as linksData } from "./data.js";
+import "./main.scss";
 
 const initialNodes = nodesData;
 const initialLinks = linksData;
+export const ViewContext = React.createContext();
 
 const Toolbar = ({ setMode, mode }) => {
   /*
@@ -51,7 +53,209 @@ const Toolbar = ({ setMode, mode }) => {
     </>
   );
 };
+
+const updateView = (
+  viewContainer,
+  { nodes, links },
+  { selectedElement, setSelectedElement }
+) => {
+  const textContainerEleName = "textNodeContainer";
+  const circleContainerEleName = "circleNodeContainer";
+  const textInputEleName = "editableText";
+
+  const nodesEnter = viewContainer
+    .selectAll(`.${textContainerEleName},.${circleContainerEleName}`)
+    .data(nodes, (d) => d.id)
+    .enter();
+
+  const circleStrokeWidth = 3;
+  const radius = 30;
+  const circleNodesEnterData = [];
+  const textNodesEnterData = [];
+  var isNodeDragged = false;
+  var mouseDownElement = null;
+  nodesEnter.each((d, i, list) => {
+    // append containers with "enter" suffix
+    // in order to group select and use enter exit workflow later
+    if (d.type === "circle") {
+      viewContainer
+        .append("svg")
+        .attr("class", circleContainerEleName + "-enter");
+      circleNodesEnterData.push(d);
+    } else if (d.type === "text") {
+      viewContainer
+        .append("div")
+        .attr("class", textContainerEleName + "-enter");
+      textNodesEnterData.push(d);
+    }
+  });
+
+  var circleNodesEnter = d3
+    .selectAll(`.${circleContainerEleName}-enter`)
+    .data(circleNodesEnterData);
+  var textNodesEnter = d3
+    .selectAll(`.${textContainerEleName}-enter`)
+    .data(textNodesEnterData);
+
+  circleNodesEnter
+    .style("position", "absolute")
+    .attr("width", 2 * (radius + circleStrokeWidth))
+    .attr("height", 2 * (radius + circleStrokeWidth))
+    .style("transform", function (d) {
+      return `translate(${
+        d.x - (radius + circleStrokeWidth)
+      }px, ${d.y - (radius + circleStrokeWidth)}px)`;
+    })
+    .append("circle")
+
+    .attr("cx", radius + circleStrokeWidth)
+    .attr("cy", radius + circleStrokeWidth)
+    .style("fill", "#FFFFFF")
+    .style("stroke", "#000000")
+    .style("stroke-width", `${circleStrokeWidth}px`)
+    .transition()
+    .duration(300)
+    .attr("r", radius);
+
+  const textNodesEnterContainer = textNodesEnter;
+
+  textNodesEnterContainer
+    .append("div")
+    .attr("contenteditable", true)
+    .attr("class", textInputEleName)
+    .style("min-width", "10px")
+    .style("min-height", "18px") // verbose because height = 0 if not contenteditable
+    .text((d) => d.text)
+    .on("paste", (e, el) => {
+      // WARNING: execCommand is deprecated
+      d3.event.preventDefault();
+      var textToInsert = d3.event.clipboardData.getData("text/plain");
+      if (textToInsert.length > 1000) {
+        // ERROR MESSAGE
+        console.log("too long!");
+        return;
+      }
+      if (document.queryCommandSupported("insertText")) {
+        document.execCommand("insertText", false, textToInsert);
+      } else {
+        document.execCommand("paste", false, textToInsert);
+      }
+    });
+
+  textNodesEnterContainer
+    .style("position", "absolute")
+    .style("transform", (d) => `translate(${d.x}px, ${d.y}px)`)
+    .style("border", "1px solid black")
+    .style("background", "#FFFFFF")
+    .style("padding-left", "0px")
+    .style("padding-top", "0px")
+    .style("padding-right", "0px")
+    .style("padding-bottom", "0px")
+    .style("border-radius", "7px")
+    .call(attachTextDrag())
+    .transition()
+    .duration(300)
+    .style("padding-left", "10px")
+    .style("padding-top", "10px")
+    .style("padding-right", "10px")
+    .style("padding-bottom", "10px");
+
+  // nodes are no longer in data, enter, exit chain
+  // rename in order for next update selection to bypass
+  d3.selectAll(`.${circleContainerEleName}-enter`).attr(
+    "class",
+    circleContainerEleName
+  );
+  d3.selectAll(`.${textContainerEleName}-enter`).attr(
+    "class",
+    textContainerEleName
+  );
+
+  // call events again so that circle events get access to new data from updateView()
+  d3.selectAll(`.${circleContainerEleName}`).call(attachCircleEvents());
+  d3.selectAll(`.${textContainerEleName}`).call(attachTextDrag());
+
+  function attachCircleEvents() {
+    return d3
+      .drag()
+      .on("start", dragstarted)
+      .on("drag", dragged)
+      .on("end", dragended);
+
+    function dragstarted(d) {
+      mouseDownElement = d;
+      d3.select(this).raise();
+    }
+
+    function dragged(d) {
+      isNodeDragged = true;
+      d3.select(this).style(
+        "transform",
+        `translate(${(d.x = d3.event.x) - (radius + circleStrokeWidth)}px, ${
+          (d.y = d3.event.y) - (radius + circleStrokeWidth)
+        }px)`
+      );
+    }
+
+    function dragended(d) {
+      var dragEndedDOMEle = this;
+      if (!isNodeDragged) {
+        click(d, dragEndedDOMEle); //click doesn't trigger as usual with drag listeners, so manually implement
+      }
+      isNodeDragged = false;
+    }
+
+    function click(d, dragEndedDOMEle) {
+      d3.selectAll(
+        `.${circleContainerEleName},.${textContainerEleName}`
+      ).classed("selected", false);
+
+      mouseDownElement = null;
+      if (selectedElement !== d) {
+        d3.select(dragEndedDOMEle).classed("selected", true);
+        setSelectedElement(d);
+      } else {
+        setSelectedElement(null);
+      }
+    }
+  }
+
+  function attachTextDrag() {
+    return d3
+      .drag()
+      .on("start", dragstarted)
+      .on("drag", dragged)
+      .on("end", dragended)
+      .filter(() => {
+        if (d3.event.target.className === "textNodeContainer") {
+          return true;
+        }
+      });
+
+    function dragstarted(d, e, i) {
+      d3.select(this).raise().classed("active", true);
+    }
+
+    function dragged(d) {
+      d.x = d3.event.x;
+      d.y = d3.event.y;
+      d3.select(this).style(
+        "transform",
+        `translate(${d3.event.x}px, ${d3.event.y}px)`
+      );
+    }
+
+    function dragended(d) {
+      d3.select(this).classed("active", false);
+    }
+  }
+};
+
 const RoadmapCreatorView = () => {
+  var isNodeDragged = false;
+  const [mouseDownElement, setMouseDownElement] = useState(null);
+  const [mouseUpElement, setMouseUpElement] = useState(null);
+  const [selectedElement, setSelectedElement] = useState(null);
   const [nodes, setNodes] = useState(initialNodes);
   const [links, setLinks] = useState(initialLinks);
   const [mode, setMode] = useState("select");
@@ -80,7 +284,8 @@ const RoadmapCreatorView = () => {
     d3.select(viewContainer.current)
       .style("width", width / 2 + "px")
       .style("height", height / 2 + "px")
-      .style("background", "#ffcc3b26")
+      .style("background", "#ffcc3b26");
+    /*
       .on("click", () => {
         /*
         dispatchNodeOperation({
@@ -92,8 +297,9 @@ const RoadmapCreatorView = () => {
           },
           
         });
-        */
+        
       });
+      */
   }, []);
 
   useEffect(() => {
@@ -108,18 +314,22 @@ const RoadmapCreatorView = () => {
         .style("user-select", "auto");
     }
   }, [mode]);
+
   useEffect(() => {
-    d3.select(viewContainer.current).call((viewContainer) => {
-      updateView(
-        viewContainer,
-        {
-          nodes,
-          links,
-        },
-        mode
-      );
-    });
+    updateView(
+      d3.select(viewContainer.current),
+      { nodes, links },
+      { selectedElement, setSelectedElement }
+    );
   }, [nodes, links]);
+
+  useEffect(() => {
+    updateView(
+      d3.select(viewContainer.current),
+      { nodes, links },
+      { selectedElement, setSelectedElement }
+    );
+  }, [selectedElement]);
 
   const handleMouseMove = (event) => {
     if (addNodeCircleElement.current) {
@@ -173,6 +383,7 @@ const RoadmapCreatorView = () => {
   const handleMouseEnter = () => {
     setIsCursorInView(true);
   };
+
   return (
     <div>
       <Toolbar setMode={(mode) => setMode(mode)} mode={mode} />
@@ -224,164 +435,6 @@ const RoadmapCreatorView = () => {
       )}
     </div>
   );
-};
-
-const updateView = (viewContainer, { nodes, links }) => {
-  const textContainerEleName = "textNodeContainer";
-  const circleContainerEleName = "circleNodeContainer";
-  const textInputEleName = "editableText";
-
-  const nodesEnter = viewContainer
-    .selectAll(`.${textContainerEleName},.${circleContainerEleName}`)
-    .data(nodes, (d) => d.id)
-    .enter();
-
-  const circleStrokeWidth = 3;
-  const radius = 30;
-  const circleNodesEnterData = [];
-  const textNodesEnterData = [];
-  nodesEnter.each((d, i, list) => {
-    // append containers with "enter" suffix
-    // in order to group select and use enter exit workflow later
-    if (d.type === "circle") {
-      viewContainer
-        .append("svg")
-        .attr("class", circleContainerEleName + "-enter");
-      circleNodesEnterData.push(d);
-    } else if (d.type === "text") {
-      viewContainer
-        .append("div")
-        .attr("class", textContainerEleName + "-enter");
-      textNodesEnterData.push(d);
-    }
-  });
-
-  var circleNodesEnter = d3
-    .selectAll(`.${circleContainerEleName}-enter`)
-    .data(circleNodesEnterData);
-  var textNodesEnter = d3
-    .selectAll(`.${textContainerEleName}-enter`)
-    .data(textNodesEnterData);
-
-  circleNodesEnter
-    .style("position", "absolute")
-    .attr("width", 2 * (radius + circleStrokeWidth))
-    .attr("height", 2 * (radius + circleStrokeWidth))
-    .style("transform", function (d) {
-      return `translate(${
-        d.x - (radius + circleStrokeWidth)
-      }px, ${d.y - (radius + circleStrokeWidth)}px)`;
-    })
-    .call(attachCircleDrag())
-    .append("circle")
-    .attr("r", radius)
-    .attr("cx", radius + circleStrokeWidth)
-    .attr("cy", radius + circleStrokeWidth)
-    .style("fill", "#FFFFFF")
-    .style("stroke", "#000000")
-    .style("stroke-width", `${circleStrokeWidth}px`);
-
-  const textNodeEditable = textNodesEnter
-    .style("padding", "10px 10px 10px 10px")
-    .style("position", "absolute")
-    .style("transform", (d) => `translate(${d.x}px, ${d.y}px)`)
-    .style("border", "1px solid black")
-    .style("background", "#FFFFFF")
-    .style("border-radius", "7px")
-    .call(attachTextDrag())
-    .append("div");
-
-  textNodeEditable
-    .attr("contenteditable", true)
-    .attr("class", textInputEleName)
-    .style("min-width", "10px")
-    .style("min-height", "18px") // verbose because height = 0 if not contenteditable
-    .text((d) => d.text)
-    .on("paste", (e, el) => {
-      // WARNING: execCommand is deprecated
-      d3.event.preventDefault();
-      var textToInsert = d3.event.clipboardData.getData("text/plain");
-      if (textToInsert.length > 1000) {
-        // ERROR MESSAGE
-        console.log("too long!");
-        return;
-      }
-      if (document.queryCommandSupported("insertText")) {
-        document.execCommand("insertText", false, textToInsert);
-      } else {
-        document.execCommand("paste", false, textToInsert);
-      }
-    });
-
-  console.log({ textNodesEnter }, { circleNodesEnter });
-
-  // nodes are no longer in data, enter, exit chain
-  // rename in order for next update selection to bypass
-  d3.selectAll(`.${circleContainerEleName}-enter`).attr(
-    "class",
-    circleContainerEleName
-  );
-  d3.selectAll(`.${textContainerEleName}-enter`).attr(
-    "class",
-    textContainerEleName
-  );
-
-  function attachCircleDrag() {
-    return d3
-      .drag()
-      .on("start", dragstarted)
-      .on("drag", dragged)
-      .on("end", dragended);
-
-    function dragstarted(d) {
-      //circleNodesContainer.raise();
-      d3.select(this).raise().classed("active", true);
-    }
-
-    function dragged(d) {
-      d3.select(this).style(
-        "transform",
-        `translate(${(d.x = d3.event.x) - (radius + circleStrokeWidth)}px, ${
-          (d.y = d3.event.y) - (radius + circleStrokeWidth)
-        }px)`
-      );
-    }
-
-    function dragended(d) {
-      d3.select(this).classed("active", false);
-      //circleNodesContainer.lower();
-    }
-  }
-
-  function attachTextDrag() {
-    return d3
-      .drag()
-      .on("start", dragstarted)
-      .on("drag", dragged)
-      .on("end", dragended)
-      .filter(() => {
-        if (d3.event.target.className === "textNodeContainer") {
-          return true;
-        }
-      });
-
-    function dragstarted(d, e, i) {
-      d3.select(this).raise().classed("active", true);
-    }
-
-    function dragged(d) {
-      d.x = d3.event.x;
-      d.y = d3.event.y;
-      d3.select(this).style(
-        "transform",
-        `translate(${d3.event.x}px, ${d3.event.y}px)`
-      );
-    }
-
-    function dragended(d) {
-      d3.select(this).classed("active", false);
-    }
-  }
 };
 
 const RoadmapCreator = () => {

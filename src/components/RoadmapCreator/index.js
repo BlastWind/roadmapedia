@@ -62,6 +62,12 @@ const updateView = (
   const textContainerEleName = "textNodeContainer";
   const circleContainerEleName = "circleNodeContainer";
   const textInputEleName = "editableText";
+  const circleStrokeWidth = 3;
+  const radius = 30;
+  const circleNodesEnterData = [];
+  const textNodesEnterData = [];
+  var isNodeDragged = false;
+  var mouseDownElement = null;
 
   const nodesAll = viewContainer
     .selectAll(`.${textContainerEleName},.${circleContainerEleName}`)
@@ -69,12 +75,21 @@ const updateView = (
 
   const nodesEnter = nodesAll.enter();
   const nodesExit = nodesAll.exit();
-  const circleStrokeWidth = 3;
-  const radius = 30;
-  const circleNodesEnterData = [];
-  const textNodesEnterData = [];
-  var isNodeDragged = false;
-  var mouseDownElement = null;
+
+  nodesExit.each(function (d) {
+    if (d.type === "circle") {
+      var circleContainer = d3.select(this);
+      circleContainer
+        .select("circle")
+        .transition()
+        .duration(300)
+        .attr("r", 0)
+        .on("end", function () {
+          circleContainer.remove();
+        });
+    }
+  });
+
   nodesEnter.each((d, i, list) => {
     // append containers with "enter" suffix
     // in order to group select and use enter exit workflow later
@@ -286,6 +301,7 @@ const RoadmapCreatorView = () => {
       .style("width", width / 2 + "px")
       .style("height", height / 2 + "px")
       .style("background", "#ffcc3b26");
+
     /*
       .on("click", () => {
         /*
@@ -301,27 +317,6 @@ const RoadmapCreatorView = () => {
         
       });
       */
-    d3.select(window).on("keydown", function () {
-      // TODO: If typing in contenteditable: exit
-      switch (d3.event.keyCode) {
-        case 46:
-          // TODO: Incomplete for links
-          console.log({ selectedElement });
-          if (selectedElement) {
-            const deleteId = selectedElement.id;
-            console.log(deleteId);
-            updateView(
-              d3.select(viewContainer.current),
-              { nodes, links },
-              { selectedElement, setSelectedElement }
-            );
-          }
-
-          break;
-        default:
-          break;
-      }
-    });
   }, []);
 
   useEffect(() => {
@@ -344,14 +339,6 @@ const RoadmapCreatorView = () => {
       { selectedElement, setSelectedElement }
     );
   }, [nodes, links]);
-
-  useEffect(() => {
-    updateView(
-      d3.select(viewContainer.current),
-      { nodes, links },
-      { selectedElement, setSelectedElement }
-    );
-  }, [selectedElement]);
 
   const handleMouseMove = (event) => {
     if (addNodeCircleElement.current) {
@@ -406,10 +393,33 @@ const RoadmapCreatorView = () => {
     setIsCursorInView(true);
   };
 
+  const onKeyDown = (event) => {
+    // TODO: If typing in contenteditable: exit
+    switch (event.keyCode) {
+      case 46:
+        // TODO: Incomplete for links
+        console.log({ selectedElement });
+        if (selectedElement) {
+          const deleteId = selectedElement.id;
+          var newNodes = nodes.filter((n) => n.id !== deleteId);
+          setNodes(newNodes);
+        }
+
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
     <div>
       <Toolbar setMode={(mode) => setMode(mode)} mode={mode} />
-      <div ref={viewContainer} style={{ position: "absolute" }}></div>
+      <div
+        ref={viewContainer}
+        style={{ position: "absolute", outline: "none" }}
+        tabIndex="-1"
+        onKeyDown={onKeyDown}
+      ></div>
       {(mode === "addCircleNode" || mode === "addTextNode") && (
         <div
           ref={addNodeOverlay}

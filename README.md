@@ -20,7 +20,7 @@ Play with Roadmap creator demo on [`Netlify`](https://hungry-booth-c8ab84.netlif
 
 ### Motive
 
-Self learning is essential but painful. When I started learning web development a couple years ago, googling "how to learn web dev" led to vastly different and fragmented quora answers (now it's a lot better). I wished I could've just opened up this fully-fledged and beautiful roadmap that shows what I need to learn, the recommended resources for each topic, and a writeup that clarifies some advanced jargons.
+Self learning is necessary but painful. When I started learning web development a couple years ago, googling "how to learn web dev" led to vastly different and fragmented quora answers (now it's a lot better). I wished I could've just opened up this fully-fledged and beautiful roadmap that shows what I need to learn, the recommended resources for each topic, and a writeup that clarifies some advanced jargons.
 
 There are good learning outlines on, for example, on learning web-dev: https://roadmap.sh/frontend
 

@@ -1,0 +1,324 @@
+@import url("https://rsms.me/inter/inter.css");
+svg.container {
+  cursor: default;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+path.link {
+  stroke: #000;
+  fill: none;
+  stroke-width: 4px;
+  cursor: default;
+}
+svg:not(.active):not(.ctrl) path.link {
+  cursor: pointer;
+}
+path.link.selected {
+  stroke: url(#svgGradient) !important;
+}
+path.link.dragline {
+  pointer-events: none;
+}
+path.link.hidden {
+  stroke-width: 0;
+}
+circle.node {
+  stroke-width: 1.5px;
+  cursor: pointer;
+}
+
+text.id {
+  text-anchor: middle;
+  font-weight: bold;
+}
+input {
+}
+textarea {
+}
+img.picture {
+  padding: 10px;
+}
+.pictureHighlight {
+  padding: 10px;
+}
+.circleDiv {
+  position: absolute;
+  top: 125px;
+  right: 15px;
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+  background-color: blue;
+  border-radius: 50%;
+  opacity: 0.5;
+  background-color: grey;
+  transition: opacity 0.25s ease-in-out;
+}
+.circleDiv.colored {
+  opacity: 1;
+  background: rgb(161, 140, 209);
+  background: linear-gradient(
+    90deg,
+    rgba(161, 140, 209, 1) 0%,
+    rgba(251, 194, 235, 1) 100%
+  );
+}
+.colorPicker {
+  position: absolute;
+  top: 125px;
+  right: 75px;
+  width: 50px;
+  height: 100px;
+  border: 3px solid black;
+  opacity: 0;
+  transition: opacity 0.1s ease-in-out;
+}
+.colorPicker.show {
+  opacity: 1;
+  transition: opacity 0.25s ease-in-out;
+}
+.border-gradient-stop-left {
+  stop-color: #3f51b5;
+}
+.border-gradient-stop-right {
+  stop-color: #009688; /* Teal */
+}
+#input2 {
+  margin: 1rem;
+  max-width: 111.5px;
+  border-radius: 5px;
+  outline: 0;
+  resize: none;
+  overflow: hidden;
+  background: #ffffff;
+  border: solid 1px #404040;
+  font-family: Georgia, serif;
+  font-size: 11px;
+}
+#input1 {
+  outline: 0;
+  margin: 1rem;
+  max-width: 115px;
+  border-radius: 5px;
+  border: solid 1px #404040;
+  background: #ffffff;
+  font-family: Georgia, serif;
+  font-size: 11px;
+}
+.resourceForm {
+  border: solid black 1.5px;
+  border-radius: 10px;
+  max-width: 150px;
+  border-color: black;
+  background-color: #ffffff;
+}
+.resourceFormA {
+  margin-left: 1rem;
+  font-family: Georgia, serif;
+  font-size: 11px;
+  letter-spacing: 0px;
+  word-spacing: 0px;
+  font-weight: normal;
+  text-decoration: none;
+  font-style: normal;
+  font-variant: normal;
+  text-transform: none;
+}
+.formContainer {
+  margin-top: 0.75rem;
+}
+#resourceFormCancelButton {
+  position: relative;
+  bottom: 7px;
+  left: 68%;
+  width: 15px;
+  height: auto;
+}
+#resourceFormSubmitButton {
+  position: relative;
+  bottom: 7px;
+  left: 64%;
+  width: 15px;
+  height: auto;
+}
+
+.modalContainer-outer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  z-index: 2;
+  user-select: none;
+}
+.modalContainer {
+  line-height: 28px;
+  border-radius: 25px;
+  width: 470px;
+  height: 155px;
+  background: #fff;
+  box-shadow: 5px 5px 5px grey;
+  text-align: center;
+  z-index: 2;
+  font-family: sans-serif;
+  font-weight: 600;
+  font-size: 20px;
+}
+.modalContainer-inner {
+  padding: 1rem;
+  padding-top: 2rem;
+}
+.btn {
+  border: none;
+  color: #ffffff;
+  padding: 12px 40px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  border-radius: 5px;
+  outline: none;
+  cursor: pointer;
+}
+
+.ok {
+  z-index: 2;
+  background-color: #4caf50; /* Green */
+}
+
+.ok:active {
+  background: #3a883d;
+}
+.no {
+  z-index: 2;
+  background-color: #f44336;
+}
+
+.no:active {
+  background: #bd392f;
+}
+.modalContainerBtnContainer {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-wrap: wrap; /*background: #e6e3ce;*/
+  justify-content: space-evenly;
+}
+
+.speechBubbleDiv:after {
+}
+
+#textBoxP {
+  top: 17.5px;
+  position: relative;
+}
+
+circle.permanent {
+  fill: white;
+  box-shadow: 0px 0px 1px #ccc;
+  stroke: rgb(221, 221, 221);
+}
+
+image.permanent {
+}
+
+#currentInput {
+  box-shadow: rgb(221, 221, 221) 0px 0px 0px 1px inset;
+  border-radius: 5px;
+  color: rgb(102, 102, 102);
+  border: 0px;
+  outline: none;
+  height: 22px;
+  font-size: 12px;
+}
+textarea#currentInput {
+  resize: none;
+  height: 44px;
+  overflow: auto;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  font-family: Open Sans, -apple-system, Helvetica;
+  resize: none;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+  border-radius: 5px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 5px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 5px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+  border-radius: 5px;
+}
+
+div.errMsginner {
+  display: inline-block;
+
+  background-color: orange;
+  color: #ffffff !important;
+  padding: 0.5rem;
+  border-radius: 1rem;
+}
+div.errMsg {
+  position: absolute;
+  top: 5rem;
+  text-align: center;
+  width: 100%;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+div.errorMessageContainer {
+  position: absolute;
+  margin: 10px;
+  left: 10px;
+  top: 0;
+  text-align: center;
+  width: 300px;
+  font-family: "Segoe UI";
+}
+
+div.errorMessage {
+  background: #000000;
+  color: #c0c0c0;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-size-adjust: 100%;
+  margin-top: 10px;
+  border-radius: 5px;
+  box-sizing: 0px 0px 1px #ccc;
+  display: block;
+  font-size: 12px;
+}
+
+.toggleAllTextButton {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  color: white;
+  padding: 1rem;
+  background: orange;
+  border-radius: 10px;
+  cursor: pointer;
+  user-select: none;
+}

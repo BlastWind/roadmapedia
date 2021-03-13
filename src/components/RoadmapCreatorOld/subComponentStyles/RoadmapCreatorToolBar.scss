@@ -1,0 +1,141 @@
+$light-blue: #e6f4fd;
+$dark-blue: #1f1b2c;
+$blue: #24a1fd;
+$red: #ff0030;
+$yellow: #ffc600;
+$purple: #e546ff;
+$green: #00ff36;
+
+$bg: $light-blue;
+$component-bg: $dark-blue;
+$component-color: $bg;
+$component-active: $blue;
+
+$component: (
+  bg: $dark-blue,
+  color: $bg,
+  active-color: $blue,
+  width: 25em,
+  height: 25em,
+  padding: 12.5px,
+  font-size: 2em,
+  border-radius: 2em,
+  icon-hover: scale(1.1),
+  icon-active-animation: bump 200ms,
+  blue: $blue,
+  green: $green,
+  purple: $purple,
+  red: $red,
+  yellow: $yellow
+);
+
+@function component($key) {
+  @return map-get($component, $key);
+}
+
+@mixin transition {
+  transition: all 100ms cubic-bezier(0.61, 0.01, 0.43, 0.99);
+}
+
+@mixin boxShadow {
+  box-shadow: 0px 20px 30px rgba($dark-blue, 0.15),
+    0px 5px 15px rgba($dark-blue, 0.05);
+}
+
+.iconContainer:not(:first-child) {
+  margin-top: 1.5rem;
+}
+.iconContainer {
+  fill: #aaacad;
+  color: #aaacad;
+}
+.icon {
+  max-width: 40px;
+  height: auto;
+}
+.iconContainer:hover {
+  cursor: pointer;
+  fill: #FFFFFF;
+  color: #FFFFFF;
+}
+
+.icon.selected {
+  fill: #e546ff;
+  color: #FFFFFF;
+}
+
+.iconName.selected {
+  color: #FFFFFF;
+}
+
+.toolbar {
+  font-size: 11px;
+  text-align: center;
+  position: absolute;
+  vertical-align: middle;
+  top: 50%;
+  margin-top: -12.5em;
+  margin-left: 1.5em;
+  background: component(bg);
+  background: linear-gradient(
+    to top,
+    component(bg),
+    lighten(component(bg), 10%)
+  );
+  color: component(color);
+  width: 4em;
+  max-height: component(height);
+  max-width: component(width);
+  padding: component(padding);
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-radius: component(border-radius);
+  &__icon {
+    cursor: pointer;
+    font-size: component(font-size);
+    @include transition;
+    &:hover {
+      transform: component(icon-hover);
+      @include transition;
+    }
+    &.is-active {
+      animation: component(icon-active-animation);
+      &.icon--home {
+        color: component(yellow);
+      }
+      &.icon--chart {
+        color: component(green);
+      }
+      &.icon--smile {
+        color: component(blue);
+      }
+      &.icon--bell {
+        color: component(red);
+      }
+      &.icon--search {
+        color: component(purple);
+      }
+    }
+  }
+}
+
+.previewDiv {
+  position: absolute;
+  right: 3px;
+}
+@keyframes bump {
+  0% {
+  }
+  25% {
+    transform: scale(1.15);
+  }
+  50% {
+    transform: scale(0.9);
+  }
+  75% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}

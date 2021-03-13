@@ -59,6 +59,7 @@ const updateView = (
   { nodes, links },
   { selectedElement, setSelectedElement }
 ) => {
+  console.log({ viewContainer }, { nodes, links });
   const textContainerEleName = "textNodeContainer";
   const circleContainerEleName = "circleNodeContainer";
   const textInputEleName = "editableText";
@@ -68,6 +69,15 @@ const updateView = (
   const textNodesEnterData = [];
   var isNodeDragged = false;
   var mouseDownElement = null;
+
+  var paths = viewContainer.selectAll(".link");
+  var pathsExit = paths.exit();
+  var pathsEnter = paths.enter();
+  console.log({ pathsExit }, { pathsEnter });
+
+  paths = paths.data(links);
+  paths.enter().append("path").merge(paths);
+  paths.attr("class", "link");
 
   const nodesAll = viewContainer
     .selectAll(`.${textContainerEleName},.${circleContainerEleName}`)
@@ -211,6 +221,8 @@ const updateView = (
           (d.y = d3.event.y) - (radius + circleStrokeWidth)
         }px)`
       );
+
+      //TODO: Update link distance
     }
 
     function dragended(d) {

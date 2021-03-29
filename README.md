@@ -16,6 +16,8 @@ Create and share learning Roadmaps to the world (under development)
 
 Play with Roadmap creator demo on [`Netlify`](https://hungry-booth-c8ab84.netlify.app/)
 
+Visit the full site (early in development) on [`Heroku`](https://roadmapedia-realm.herokuapp.com/)
+
 ## What is Roadmapedia?
 
 ### Motive

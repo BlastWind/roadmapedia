@@ -72,3 +72,6 @@ Frontend: CRA ReactJS, Sass, D3.js, Snowpack
 Backend + Database: MongoDB Stitch (current), Firebase (perhaps in future)
 
 Feel free to play around with this source code
+
+
+As of March, I have migrated the main parts of the app from Stitch => Realm. 

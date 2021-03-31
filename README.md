@@ -5,10 +5,9 @@
 [![Netlify Status](https://api.netlify.com/api/v1/badges/2d0483aa-3ecb-434f-b96d-6bdbef78806f/deploy-status)](https://app.netlify.com/sites/hungry-booth-c8ab84/deploys)
 [![Discord Status](https://img.shields.io/discord/553057072757997568.svg)](https://discord.gg/WD82qNM)
 
-
 Create and share learning Roadmaps to the world (under development)
 
-<img src="docs/sample-roadmap.jpg">
+<img src="docs/roadmapedia-demo-gif.gif">
 
 </div>
 
@@ -31,29 +30,25 @@ Why not combine them both? With a more beatiful and consistent UI, and let users
 ### Features
 
 - Roadmap Creator: Designed with substantial D3.js and a [`Medium`](https://medium.com/) like rich text editor.
-  
 - Learners can track and update progress (progress made with checking off resource nodes).
-  
 - Users can create Sets, listing smaller roadmaps.
-  
 - Learners can make private roadmaps for themselves from scratch, or they can import existing roadmaps into the creator.
 
 ## Older Versions
 
-(The RESTful APIs won't work in these websites since I need to migrate database and resolve a persistent proxy error, but some UI is still accessible ) 
+(The RESTful APIs won't work in these websites since I need to migrate database and resolve a persistent proxy error, but some UI is still accessible )
 
 [`Roadmapedia V1 (MERN Stack)`](https://arcane-scrubland-73229.herokuapp.com/)
 
 [`Roadmapedia V2 (MERN Stack)`](https://quiet-brushlands-45755.herokuapp.com/)
 
-Below are demos of their editors 
+Below are demos of their editors
 
 [`Roadmapedia V1 Editor`](https://roadmapedia-v1-editor.herokuapp.com/)
 
 [`Roadmapedia V2 Editor`](https://roadmapedia-v2-editor.herokuapp.com/)
 
-
-Although far from professional levels, you can get a good feel for the features I was going for.  
+Although far from professional levels, you can get a good feel for the features I was going for.
 
 ## Connect
 

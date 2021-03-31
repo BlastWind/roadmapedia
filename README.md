@@ -15,6 +15,8 @@ Create and share learning Roadmaps to the world (under development)
 
 Play with Roadmap creator demo on [`Netlify`](https://hungry-booth-c8ab84.netlify.app/)
 
+Visit the full site (very premature) on [`Heroku`](https://roadmapedia-realm.herokuapp.com/)
+
 ## What is Roadmapedia?
 
 ### Motive
@@ -56,7 +58,7 @@ Discord: https://discord.gg/WD82qNM
 
 ## Notes
 
-As of February, the code in this remote repo only contains that of the Roadmap Creator's. I omit from uploading all of my work thus far because I believe I am switching serverless platforms soon.
+As of February, the code in this remote repo only contains that of the Roadmap Creator's. I omit from uploading all of my work thus far because 1) I need to migrate from mongodb stitch to mongodb realm 2) I am considering switching serverless platforms soon. 
 
 Technologies used in this project
 
@@ -65,3 +67,6 @@ Frontend: CRA ReactJS, Sass, D3.js, Snowpack
 Backend + Database: MongoDB Stitch (current), Firebase (perhaps in future)
 
 Feel free to play around with this source code
+
+
+As of March, I have migrated the main parts of the app from Stitch => Realm. 
